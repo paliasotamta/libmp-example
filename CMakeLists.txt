@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(libmp-example)
 
 # Link MediaPipe Shared Lib
-set(MEDIAPIPE_DIR "C:/Users/rk274/code/mediapipe" CACHE PATH "Where mediapipe repo lives with compiled libmp")
+set(MEDIAPIPE_DIR "C:/repos/mediapipe" CACHE PATH "Where mediapipe repo lives with compiled libmp")
 if(NOT EXISTS "${MEDIAPIPE_DIR}")
 	message(FATAL_ERROR "Mediapipe directory '${MEDIAPIPE_DIR}' not found!")
 endif()
