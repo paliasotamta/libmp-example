@@ -83,7 +83,6 @@ int main(int argc, char* argv[]) {
 input_stream: "input_video"
 
 # CPU image. (ImageFrame)
-output_stream: "output_video"
 
 output_stream: "landmarks"
 
@@ -104,23 +103,6 @@ node {
   input_stream: "IMAGE:input_video"
   input_side_packet: "NUM_HANDS:num_hands"
   output_stream: "LANDMARKS:landmarks"
-  output_stream: "HANDEDNESS:handedness"
-  output_stream: "PALM_DETECTIONS:multi_palm_detections"
-  output_stream: "HAND_ROIS_FROM_LANDMARKS:multi_hand_rects"
-  output_stream: "HAND_ROIS_FROM_PALM_DETECTIONS:multi_palm_rects"
-}
-
-# Subgraph that renders annotations and overlays them on top of the input
-# images (see hand_renderer_cpu.pbtxt).
-node {
-  calculator: "HandRendererSubgraph"
-  input_stream: "IMAGE:input_video"
-  input_stream: "DETECTIONS:multi_palm_detections"
-  input_stream: "LANDMARKS:landmarks"
-  input_stream: "HANDEDNESS:handedness"
-  input_stream: "NORM_RECTS:0:multi_palm_rects"
-  input_stream: "NORM_RECTS:1:multi_hand_rects"
-  output_stream: "IMAGE:output_video"
 }
 
     )";
@@ -174,7 +156,7 @@ node {
             for (const std::array<float, 3>& norm_xyz : normalized_landmarks[face_num]) {
                 int x = static_cast<int>(norm_xyz[0] * frame_bgr.cols);
                 int y = static_cast<int>(norm_xyz[1] * frame_bgr.rows);
-                cv::circle(frame_bgr, cv::Point(x, y), 1, cv::Scalar(0, 255, 0), -1);
+                cv::circle(frame_bgr, cv::Point(x, y), 3, cv::Scalar(0, 255, 0), -1);
             }
         }
 

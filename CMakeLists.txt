@@ -88,6 +88,6 @@ add_custom_command(TARGET main POST_BUILD
 IF(WIN32)
 	add_custom_command(TARGET main POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy "${LIBMP_BIN_DIR}/opencv_world470.dll" "$<TARGET_FILE_DIR:main>"
-		COMMENT "Copying OpenCV DLL (Debug)"
+		COMMENT "Copying OpenCV DLL (Release)"
 	)
 ENDIF()
