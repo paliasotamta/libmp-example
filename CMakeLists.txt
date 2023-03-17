@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(libmp-example)
 
 # Link MediaPipe Shared Lib
-set(MEDIAPIPE_DIR "C:/Users/rk274/code/mediapipe")
+set(MEDIAPIPE_DIR "C:/Users/rk274/code/mediapipe" CACHE PATH "Where mediapipe repo lives with compiled libmp")
 if(NOT EXISTS "${MEDIAPIPE_DIR}")
 	message(FATAL_ERROR "Mediapipe directory '${MEDIAPIPE_DIR}' not found!")
 endif()
@@ -79,10 +79,15 @@ add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models" "$<TARGET_FILE_DIR:main>/mediapipe/models"
     COMMENT "Copying mediapipe/models"
 )
+# Copy handedness.txt
+add_custom_command(TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${MEDIAPIPE_DIR}/mediapipe/modules/hand_landmark/handedness.txt" "$<TARGET_FILE_DIR:main>/mediapipe/modules/hand_landmark/handedness.txt"
+    COMMENT "Copying handedness.txt"
+)
 # OpenCV (Windows only)
 IF(WIN32)
 	add_custom_command(TARGET main POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy "${LIBMP_BIN_DIR}/opencv_world460.dll" "$<TARGET_FILE_DIR:main>"
-		COMMENT "Copying OpenCV DLL (Release)"
+		COMMAND ${CMAKE_COMMAND} -E copy "${LIBMP_BIN_DIR}/opencv_world470.dll" "$<TARGET_FILE_DIR:main>"
+		COMMENT "Copying OpenCV DLL (Debug)"
 	)
 ENDIF()
