@@ -9,11 +9,38 @@ if(NOT EXISTS "${MEDIAPIPE_DIR}")
 endif()
 get_filename_component(MEDIAPIPE_DIRNAME "${MEDIAPIPE_DIR}" NAME)
 
+# Protobuf
+# use Protobuf bundled with LibMP
+set(protobuf_source_dir "${MEDIAPIPE_DIR}/bazel-${MEDIAPIPE_DIRNAME}/external/com_google_protobuf")
+include("${CMAKE_CURRENT_SOURCE_DIR}/libprotobuf.cmake")
+
+# MediaPipe Formats
+file(GLOB_RECURSE MP_FORMATS_SRC "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/framework/formats/*.cc")
+if(MSVC)
+  # MSVC warning suppressions
+  add_definitions(${MSVC_WARNINGS})
+endif(MSVC)
+add_library(MP_FORMATS STATIC ${MP_FORMATS_SRC})
+target_include_directories(MP_FORMATS PUBLIC "${MEDIAPIPE_DIR}/bazel-bin")
+target_link_libraries(MP_FORMATS PUBLIC libprotobuf)
+
+# OpenCV
+# use OpenCV bundled with LibMP
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	set(LibMP_OpenCV_DIR "${MEDIAPIPE_DIR}/bazel-${MEDIAPIPE_DIRNAME}/external/windows_opencv")
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set(LibMP_OpenCV_DIR "${MEDIAPIPE_DIR}/bazel-${MEDIAPIPE_DIRNAME}/external/linux_opencv")
+endif()
+set(OpenCV_DIR "${LibMP_OpenCV_DIR}") # use OpenCV bundled with LibMP
+find_package(OpenCV REQUIRED)
+
 # LibMP
 set(LIBMP_TARGET_NAME "libmp")
 set(LIBMP_SOURCE_DIR "${MEDIAPIPE_DIR}/mediapipe/examples/desktop/${LIBMP_TARGET_NAME}")
 set(LIBMP_BIN_DIR "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/examples/desktop/${LIBMP_TARGET_NAME}")
 add_library(LIBMP SHARED IMPORTED)
+target_link_libraries(LIBMP INTERFACE MP_FORMATS)
+target_link_libraries(LIBMP INTERFACE ${OpenCV_LIBS})
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	set(LIBMP_SHARED_LIBRARY "${LIBMP_BIN_DIR}/${LIBMP_TARGET_NAME}.dll")
 	set(LIBMP_IMPORT_LIB "${LIBMP_BIN_DIR}/${LIBMP_TARGET_NAME}.dll.if.lib")
@@ -30,38 +57,13 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	)
 endif()
 
-# Protobuf
-# use Protobuf bundled with LibMP
-set(protobuf_source_dir "${MEDIAPIPE_DIR}/bazel-${MEDIAPIPE_DIRNAME}/external/com_google_protobuf")
-include("${CMAKE_CURRENT_SOURCE_DIR}/libprotobuf.cmake")
-
-# MediaPipe Formats
-file(GLOB_RECURSE MP_FORMATS_SRC "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/framework/formats/*.cc")
-if(MSVC)
-  # MSVC warning suppressions
-  add_definitions(${MSVC_WARNINGS})
-endif(MSVC)
-add_library(MP_FORMATS STATIC ${MP_FORMATS_SRC})
-target_include_directories(MP_FORMATS PUBLIC "${MEDIAPIPE_DIR}/bazel-bin")
-target_link_libraries(MP_FORMATS libprotobuf)
-
-# OpenCV
-# use OpenCV bundled with LibMP
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-	set(LibMP_OpenCV_DIR "${MEDIAPIPE_DIR}/bazel-${MEDIAPIPE_DIRNAME}/external/windows_opencv")
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	set(LibMP_OpenCV_DIR "${MEDIAPIPE_DIR}/bazel-${MEDIAPIPE_DIRNAME}/external/linux_opencv")
-endif()
-set(OpenCV_DIR "${LibMP_OpenCV_DIR}") # use OpenCV bundled with LibMP
-find_package(OpenCV REQUIRED)
-
 # Main executable
 add_executable(main main.cpp)
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
 set_property(TARGET main PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(main LIBMP)
-target_link_libraries(main MP_FORMATS)
-target_link_libraries(main ${OpenCV_LIBS})
+target_link_libraries(main PUBLIC LIBMP)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
+install(TARGETS main LIBRARY RUNTIME)
 
 ### Post-build copies ###
 # LibMP - MediaPipe Shared Library
