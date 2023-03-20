@@ -16,6 +16,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/libprotobuf.cmake")
 
 # MediaPipe Formats
 file(GLOB_RECURSE MP_FORMATS_SRC "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/framework/formats/*.cc")
+file(GLOB_RECURSE MP_FORMATS_HEADERS "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/framework/formats/*.h")
 if(MSVC)
   # MSVC warning suppressions
   add_definitions(${MSVC_WARNINGS})
@@ -63,7 +64,15 @@ set_property(TARGET main PROPERTY CXX_STANDARD 17)
 set_property(TARGET main PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(main PUBLIC LIBMP)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
-install(TARGETS main LIBRARY RUNTIME)
+
+# install commands for the example
+# FILE(GLOB_RECURSE MEDIAPIPE_MODELS "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models/*.tflite")
+INSTALL(TARGETS main libprotobuf MP_FORMATS LIBRARY RUNTIME)
+INSTALL(FILES ${MP_FORMATS_HEADERS} DESTINATION include)
+INSTALL(FILES ${LIBMP_IMPORT_LIB} DESTINATION lib RENAME "${LIBMP_TARGET_NAME}.lib")
+INSTALL(FILES ${LIBMP_SHARED_LIBRARY} DESTINATION bin)
+INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/modules/" DESTINATION "bin/mediapipe/modules")
+INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models/" DESTINATION "bin/mediapipe/models") 
 
 ### Post-build copies ###
 # LibMP - MediaPipe Shared Library
