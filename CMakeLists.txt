@@ -41,7 +41,6 @@ set(LIBMP_SOURCE_DIR "${MEDIAPIPE_DIR}/mediapipe/examples/desktop/${LIBMP_TARGET
 set(LIBMP_BIN_DIR "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/examples/desktop/${LIBMP_TARGET_NAME}")
 add_library(LIBMP SHARED IMPORTED)
 target_link_libraries(LIBMP INTERFACE MP_FORMATS)
-target_link_libraries(LIBMP INTERFACE ${OpenCV_LIBS})
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	set(LIBMP_SHARED_LIBRARY "${LIBMP_BIN_DIR}/${LIBMP_TARGET_NAME}.dll")
 	set(LIBMP_IMPORT_LIB "${LIBMP_BIN_DIR}/${LIBMP_TARGET_NAME}.dll.if.lib")
@@ -62,17 +61,25 @@ endif()
 add_executable(main main.cpp)
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
 set_property(TARGET main PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(main PUBLIC LIBMP)
+target_link_libraries(main PUBLIC LIBMP ${OpenCV_LIBS})
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation Directory" FORCE)
 
 # install commands for the example
 # FILE(GLOB_RECURSE MEDIAPIPE_MODELS "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models/*.tflite")
+set(MEDIAPIPE_HANDNESS "${MEDIAPIPE_DIR}/mediapipe/modules/hand_landmark/handedness.txt")
 INSTALL(TARGETS main libprotobuf MP_FORMATS LIBRARY RUNTIME)
 INSTALL(FILES ${MP_FORMATS_HEADERS} DESTINATION include)
+INSTALL(FILES "${LIBMP_SOURCE_DIR}/libmp.h" DESTINATION include)
 INSTALL(FILES ${LIBMP_IMPORT_LIB} DESTINATION lib RENAME "${LIBMP_TARGET_NAME}.lib")
 INSTALL(FILES ${LIBMP_SHARED_LIBRARY} DESTINATION bin)
-INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/modules/" DESTINATION "bin/mediapipe/modules")
-INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models/" DESTINATION "bin/mediapipe/models") 
+INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/modules/" DESTINATION "mediapipe/modules")
+INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models/" DESTINATION "mediapipe/models")
+INSTALL(FILES ${MEDIAPIPE_HANDNESS} DESTINATION bin/mediapipe/modules/hand_landmark)
+
+# install OpenCV world dll
+# please see https://stackoverflow.com/questions/8109155/include-opencv-library-dlls-with-cmake
+get_target_property(opencv_world_dll_source_filepath opencv_world IMPORTED_LOCATION_RELEASE)
+install(FILES ${opencv_world_dll_source_filepath} DESTINATION bin)
 
 ### Post-build copies ###
 # LibMP - MediaPipe Shared Library

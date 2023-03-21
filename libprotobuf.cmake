@@ -223,3 +223,4 @@ set(libprotobuf_includes
 add_library(libprotobuf STATIC ${libprotobuf_lite_files} ${libprotobuf_files} ${libprotobuf_lite_includes} ${libprotobuf_includes})
 target_link_libraries(libprotobuf ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(libprotobuf PUBLIC "${protobuf_source_dir}/src")
+INSTALL(DIRECTORY "${protobuf_source_dir}/src/google/protobuf/" DESTINATION "include/google/protobuf")
