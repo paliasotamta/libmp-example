@@ -71,6 +71,8 @@ static std::vector<std::vector<std::array<float, 3>>> get_landmarks(const std::s
 ////////////////////////////////////////
 
 int main(int argc, char* argv[]) {
+    mediapipe::ParseCommandLine(argc, argv);
+
     // adapted from https://github.com/google/mediapipe/blob/master/mediapipe/graphs/face_mesh/face_mesh_desktop_live.pbtxt
     // runs face mesh for up to 1 face with both attention and previous landmark usage enabled
     const char* graph = R"(

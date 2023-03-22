@@ -74,7 +74,8 @@ INSTALL(FILES ${LIBMP_IMPORT_LIB} DESTINATION lib RENAME "${LIBMP_TARGET_NAME}.l
 INSTALL(FILES ${LIBMP_SHARED_LIBRARY} DESTINATION bin)
 INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/modules/" DESTINATION "mediapipe/modules")
 INSTALL(DIRECTORY "${MEDIAPIPE_DIR}/bazel-bin/mediapipe/models/" DESTINATION "mediapipe/models")
-INSTALL(FILES ${MEDIAPIPE_HANDNESS} DESTINATION bin/mediapipe/modules/hand_landmark)
+INSTALL(FILES ${MEDIAPIPE_HANDNESS} DESTINATION "bin/mediapipe/modules/hand_landmark")
+INSTALL(FILES ${MEDIAPIPE_HANDNESS} DESTINATION "mediapipe/modules/hand_landmark")
 
 # install OpenCV world dll
 # please see https://stackoverflow.com/questions/8109155/include-opencv-library-dlls-with-cmake
